@@ -22,3 +22,23 @@ to .ino but this is untested and changes are probably needed.
 Demo 1: https://www.youtube.com/watch?v=T2C9mu11J88
 Demo 2: https://www.youtube.com/watch?v=4fyQAG1ji9Y
 Demo 3: https://www.youtube.com/watch?v=qthHU0W8SG4
+
+
+========
+The Java app for the Raspberry pi to control the Arduino requires the Pi4J library.
+
+http://pi4j.com/
+
+In addition, for connectivity the RPi should be running Apache with php and MySQL. 
+The php site stores user selections into a MySQL database which are then read by the 
+java program.
+
+The Raspberry Pi connects to the Arduino via the USB port. This is the simplest 
+connection type available. The app requires Java which is included in newer 
+Raspbian releases and must be run with sudo.
+
+The file LedTable_Settings.java should be modified to include the user/password/ip 
+settings required for the MySQL server used to interface with the php webpage.
+
+A run.sh shell script is included for your convenience. This file should be modified 
+to point to the correct paths and needs to be run with sudo.
