@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="LedTable" default="dist" basedir=".">
+	<description>
+		Build file for LedTable
+	</description>
+	
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="lib" location="lib" />
+	<property name="dist" location="dist" />
+	<property name="version" value="0.2" />
+	
+	
+	<target name="init" depends="clean">
+		<echo message="init" />
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+	
+	<target name="compile" depends="init" description="compile the source " >
+		<echo message="Compile" />
+		<javac srcdir="${src}" destdir="${build}">
+			<classpath id="classpath" description="The default classpath.">
+				<pathelement path="${classpath}"/>
+				<fileset dir="${lib}/pi4j">
+					<include name="*.jar"/>
+				</fileset>
+				<fileset dir="${lib}">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="manifest" depends="compile" description="Create Manifest file" >
+		<echo message="Creating Manifest" />
+		<manifest file="MANIFEST.MF">
+			<attribute name="Built-By" value="${user.name}"/>
+			<attribute name="Main-Class" value="net.mdp3.java.rpi.ledtable.LedTable"/>
+			<attribute name="Class-Path" value="./lib/mdp3Util.jar
+				./lib/pi4j/junit.jar
+				./lib/pi4j/pi4j-core-javadoc.jar
+				./lib/pi4j/pi4j-core-sources.jar
+				./lib/pi4j/pi4j-core.jar
+				./lib/pi4j/pi4j-device-javadoc.jar
+				./lib/pi4j/pi4j-device-sources.jar
+				./lib/pi4j/pi4j-device.jar
+				./lib/pi4j/pi4j-example-javadoc.jar
+				./lib/pi4j/pi4j-example-sources.jar
+				./lib/pi4j/pi4j-example.jar
+				./lib/pi4j/pi4j-gpio-extension-javadoc.jar
+				./lib/pi4j/pi4j-gpio-extension-sources.jar
+				./lib/pi4j/pi4j-gpio-extension.jar
+				./lib/pi4j/pi4j-service-javadoc.jar
+				./lib/pi4j/pi4j-service-sources.jar
+				./lib/pi4j/pi4j-service.jar" />
+			<section name="common">
+				<attribute name="Specification-Title" value="LedTable"/>
+				<attribute name="Specification-Version" value="${version}"/>
+				<attribute name="Specification-Vendor" value="mdp3.net"/>
+				<attribute name="Implementation-Title" value="Java LedTable Controller"/>
+				<attribute name="Implementation-Version" value="${version} ${TODAY}"/> 
+				<attribute name="Implementation-Vendor" value="mdp3.net"/>
+			</section>
+		</manifest>
+	</target>
+	
+	<target name="dist" depends="manifest" description="generate the distribution" >
+		<echo message="Dist" />
+		<copy todir="${dist}/lib">
+			<fileset dir="${lib}" />
+		</copy>
+		<copy todir="${dist}" file="${basedir}/settings.txt" />
+		<jar jarfile="${dist}/LedTable.jar" basedir="${build}" manifest="MANIFEST.MF" />
+	</target>
+	
+	<target name="clean" description="clean up" >
+		<echo message="Clean" />
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+		<delete file="MANIFEST.MF"/>
+	</target>
+</project>

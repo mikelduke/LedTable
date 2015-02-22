@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.4
+Created-By: 1.7.0_55-b13 (Oracle Corporation)
+Built-By: Mikel
+Main-Class: net.mdp3.java.rpi.ledtable.LedTable
+Class-Path: ./lib/mdp3Util.jar     ./lib/pi4j/junit.jar     ./lib/pi4j
+ /pi4j-core-javadoc.jar     ./lib/pi4j/pi4j-core-sources.jar     ./lib
+ /pi4j/pi4j-core.jar     ./lib/pi4j/pi4j-device-javadoc.jar     ./lib/
+ pi4j/pi4j-device-sources.jar     ./lib/pi4j/pi4j-device.jar     ./lib
+ /pi4j/pi4j-example-javadoc.jar     ./lib/pi4j/pi4j-example-sources.ja
+ r     ./lib/pi4j/pi4j-example.jar     ./lib/pi4j/pi4j-gpio-extension-
+ javadoc.jar     ./lib/pi4j/pi4j-gpio-extension-sources.jar     ./lib/
+ pi4j/pi4j-gpio-extension.jar     ./lib/pi4j/pi4j-service-javadoc.jar 
+     ./lib/pi4j/pi4j-service-sources.jar     ./lib/pi4j/pi4j-service.j
+ ar
+
+Name: common
+Specification-Title: LedTable
+Specification-Version: 0.1
+Specification-Vendor: mdp3.net
+Implementation-Title: Java LedTable Controller
+Implementation-Version: 0.1 February 21 2015
+Implementation-Vendor: mdp3.net
+

@@ -1,8 +1,6 @@
 package net.mdp3.java.rpi.ledtable;
 
 import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * 
@@ -20,26 +18,16 @@ public class LedTable_Selection {
 	private String selection_parm3 = "";
 	private String selection_parm4 = "";
 	private byte selection_parm5[];
-
-	public LedTable_Selection(ResultSet rs) {
-		//if (LedTable_Settings.debug) System.out.println("Selection: " + rs.toString());
-		
-		try {
-			if (rs.next()) {
-				int i = 1;
-				selection_id    = rs.getLong(i++);
-				selection_mode  = rs.getInt(i++);
-				selection_date  = rs.getDate(i++);
-				selection_parm1 = rs.getString(i++);
-				selection_parm2 = rs.getString(i++);
-				selection_parm3 = rs.getString(i++);
-				selection_parm4 = rs.getString(i++);
-				selection_parm5 = rs.getBytes(i++);
-			}
-		} catch (SQLException e) {
-			System.out.println("Error loading result set: " + e);
-			e.printStackTrace();
-		}
+	
+	public LedTable_Selection(int s_mode, String s_p1, String s_p2, String s_p3, String s_p4, byte s_p5[]) {
+		this.selection_id = -1;
+		this.selection_mode = s_mode;
+		this.selection_date = this.getDate();
+		this.selection_parm1 = s_p1;
+		this.selection_parm2 = s_p2;
+		this.selection_parm3 = s_p3;
+		this.selection_parm4 = s_p4;
+		this.selection_parm5 = s_p5;
 	}
 	
 	public long getId() {
@@ -105,7 +93,16 @@ public class LedTable_Selection {
 	
 	public boolean equals(LedTable_Selection s) {
 		if (s == null) return false;
-		else if (s.getId() == this.getId()) return true;
+		else if (!(s instanceof LedTable_Selection)) return false;
+		else if (this.getId() >= 0 && s.getId() >= 0 && s.getId() == this.getId()) return true;
+		else if (s.getDate() == this.getDate() 
+				&& s.getMode() == this.getMode() 
+				&& s.getParm1() == this.getParm1() 
+				&& s.getParm2() == this.getParm2() 
+				&& s.getParm3() == this.getParm3() 
+				&& s.getParm4() == this.getParm4() 
+				&& s.getParm5() == this.getParm5()) 
+			return true;
 		else return false;
 	}
 }

@@ -37,7 +37,7 @@ public class LedTable_Serial {
 		 this.x = x;
 		 this.y = y;
 		 
-		 if (sdl == null) {
+		 if (sdl == null) { // anonymous method in case another listener is not used
 			 sdl = new SerialDataListener() {
 				 @Override
 			     public void dataReceived(SerialDataEvent event) {
@@ -52,22 +52,35 @@ public class LedTable_Serial {
 		 this.connect();
 	}
 	
+	/**
+	 * Returns true if the connection to the serial port is successful
+	 * Also returns true if the output is disabled so that debugging will work
+	 * 
+	 * @return connected status
+	 */
 	public boolean connect() {
-		try {
-		     // open the default serial port provided on the GPIO header
-		    serial.open(comPort, baud);
-		    Thread.sleep(1000); //connect time
-		    connected = true;
-		    return true;
-		} 
-		catch(InterruptedException e) {
-			System.out.println("Thread Interrupted: " + e);
-			return false;
-		} 
-		catch(SerialPortException ex) {
-			System.out.println("SERIAL SETUP FAILED : " + ex);
-			return false;
+		if (LedTable_Settings.enableTableOutput) {
+			try {
+			     // open the default serial port provided on the GPIO header
+			    serial.open(comPort, baud);
+			    Thread.sleep(1000); //connect time
+			    connected = true;
+			    return true;
+			} 
+			catch(InterruptedException e) {
+				System.out.println("Thread Interrupted: " + e);
+				connected = false;
+				return false;
+			} 
+			catch(SerialPortException ex) {
+				System.out.println("SERIAL SETUP FAILED : " + ex);
+				connected = false;
+				return false;
+			}
+		} else { //table output not enabled, use debug
+			connected = true;
 		}
+		return connected;
 	}
 	
 	public void disconnect() {
@@ -80,22 +93,34 @@ public class LedTable_Serial {
 	
 	public void writeByte(byte b) {
 		if (LedTable_Settings.debug) System.out.println("Serial.writeByte: " + b);
-		serial.write(b);
+		
+		if (LedTable_Settings.enableTableOutput && connected) {
+			serial.write(b);
+		}
 	}
 	
 	public void writeByteAr(byte bAr[]) {
 		if (LedTable_Settings.debug) System.out.println("Serial.writeByteAr: " + bAr.toString());
-		serial.write(bAr);
+		
+		if (LedTable_Settings.enableTableOutput && connected) {
+			serial.write(bAr);
+		}
 	}
 	
 	public void writeChar(char c) {
 		if (LedTable_Settings.debug) System.out.println("Serial.writeChar: " + c);
-		serial.write(c);
+
+		if (LedTable_Settings.enableTableOutput && connected) {
+			serial.write(c);
+		}
 	}
 	
 	public void writeCharAr(char cAr[]) {
 		if (LedTable_Settings.debug) System.out.println("Serial.writeCharAr: " + cAr.toString());
-		serial.write(cAr);
+
+		if (LedTable_Settings.enableTableOutput && connected) {
+			serial.write(cAr);
+		}
 	}
 	
 	public void testSend() {

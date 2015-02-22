@@ -32,7 +32,11 @@ public class LedTable_Animation extends Thread {
 		while (run) {
 			for (int i = 0; i < fileList.length; i++) {
 				if (run) { //checked again so that when the mode changes, the thread can quit on the next frame
-					if (i < imageAr.length) LedTable.tableSerial.serial.write(imageAr[i]);
+					if (i < imageAr.length) {
+						//LedTable.tableSerial.serial.write(imageAr[i]);
+						//LedTable.tableSerial.writeByteAr(imageAr[i]);
+						LedTable_Util.sendTableAr(imageAr[i]);
+					}
 					try {
 						Thread.sleep(imageDelay);
 					}
@@ -54,6 +58,10 @@ public class LedTable_Animation extends Thread {
 	
 	public long getRuntime() {
 		return imageDelay * fileList.length;
+	}
+	
+	public boolean isRunning() {
+		return run;
 	}
 	
 	private byte[] loadImage(String imgPath) {
@@ -79,7 +87,7 @@ public class LedTable_Animation extends Thread {
 							tableAr[cell++] = (byte)b;
 						}
 						else {
-							System.out.println("Pixel discared at x,y: " + x + "," + y);
+							System.out.println("Pixel discarded at x,y: " + x + "," + y);
 						}
 					}
 				}
@@ -96,7 +104,7 @@ public class LedTable_Animation extends Thread {
 							tableAr[cell++] = (byte)b;
 						}
 						else {
-							System.out.println("Pixel discared at x,y: " + x + "," + y);
+							System.out.println("Pixel discarded at x,y: " + x + "," + y);
 						}
 					}
 				}

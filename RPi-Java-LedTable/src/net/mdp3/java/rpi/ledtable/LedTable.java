@@ -4,9 +4,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 
 import javax.imageio.ImageIO;
+
+import net.mdp3.java.rpi.ledtable.gui.MainWindow;
 
 
 /**
@@ -16,17 +17,23 @@ import javax.imageio.ImageIO;
  * LedTable Main Class
  * 
  */
-public class LedTable extends Thread {
+public class LedTable {
 	public static LedTable_Serial tableSerial;
-	private LedTable_SQL sql;
 	private LedTable_Selection prevSelection = null;
 	private LedTable_Selection lastSelection;
 	private LedTable_Animation animation = null;
 	//private LedTable_Modes[] modes;
+	private LedTable_Midi midiMode = null;
 	
-	private boolean run = false;
+	@SuppressWarnings("unused")
+	private WebserviceHandler wsh;
+	
 	private boolean runAnimation = false;
+	
+	@SuppressWarnings("unused")
+	private MainWindow ledTableGUI = null;
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		LedTable table;
 		LedTable_Settings.loadSettings();
@@ -34,54 +41,35 @@ public class LedTable extends Thread {
 		System.out.println("LedTable Serial Interface");
 		
 		table = new LedTable();
-		table.start();
 	}
 	
 	public LedTable() {
 		tableSerial = new LedTable_Serial(LedTable_Settings.serialPort, 
 				LedTable_Settings.serialBaud, LedTable_Settings.ledX, LedTable_Settings.ledY);
-		sql = new LedTable_SQL(LedTable_Settings.databaseIP, LedTable_Settings.userName, LedTable_Settings.userPass, LedTable_Settings.databaseName);
-		sql.connect();
-	}
-	
-	/**
-	 * run
-	 * 
-	 * Main thread loop for LedTable
-	 * This method checks the database for changes and then calls the handler when there is a new selection
-	 */
-	public void run() {
-		run = true;
-		//wait for stuff to connect and arduino to reset
+		wsh = new WebserviceHandler(this, LedTable_Settings.wsPort, LedTable_Settings.wsName);
+		
+		if (LedTable_Settings.enableGUI) {
+			ledTableGUI = new MainWindow(this);
+		}
+		
 		try {
 			Thread.sleep(1500);
 		} catch (InterruptedException e1) {
 			System.out.println("Error Sleeping Thread: " + e1);
 			e1.printStackTrace();
 		}
+
+		newSelection(new LedTable_Selection(2, null, null, null, null, null));
+	}
 		
-		tableSerial.writeChar('2');
+	public void newSelection(LedTable_Selection s) {
+		if (LedTable_Settings.debug) System.out.println("newSelection Called with Mode: " + s.getMode());
 		
-		//Main Loop
-		while (run) {
-			try {
-				if (LedTable_Settings.debug) System.out.println("Checking db");
-				if (sql.isConnected()) {
-					lastSelection = sql.getLastSelection();
-					if (LedTable_Settings.debug) System.out.println("Last Selection: " +lastSelection.toString());
-					if (!lastSelection.equals(prevSelection)) {
-						//new selection, parse it and send output to serial
-						handleSelection();
-					}
-					prevSelection = lastSelection;
-				}
-				else sql.connect();
-				
-				Thread.sleep(LedTable_Settings.refreshTime);
-			}
-			catch (InterruptedException e) {
-				System.out.println("Error Sleeping LedTable.java " + e);
-			}
+		if (!s.equals(prevSelection)) {
+			//new selection, parse it and send output to serial
+			lastSelection = s;
+			handleSelection();
+			prevSelection = s;
 		}
 	}
 	
@@ -94,11 +82,16 @@ public class LedTable extends Thread {
 	 */
 	private void handleSelection() {
 		if (LedTable_Settings.debug) System.out.println("Handle Selection Mode: " + lastSelection.getMode());
+		
+		if (LedTable_Settings.enableTableOutput && !tableSerial.isConnected()) {
+			tableSerial.connect();
+		}
+		
 		if (tableSerial.isConnected()) {
 			int mode = lastSelection.getMode();
 			char c = new String(mode + "").charAt(0);
 			
-			if (mode != 8 && runAnimation) {
+			if (mode != 8 && animation != null && animation.isRunning()) {
 				runAnimation = false;
 				animation.stopAnimation();
 				try {
@@ -106,7 +99,11 @@ public class LedTable extends Thread {
 				} catch (InterruptedException e) {
 					System.out.println("Error waiting for animation to finish " + e);
 				}
-				animation = null;
+			}
+			
+			if (mode != 9 && midiMode != null && midiMode.isRunning()) {
+				midiMode.stopMidi();
+				midiMode = null;
 			}
 			
 			if (mode == 0 || mode == 1 || mode == 2 || mode == 3 || mode == 6) { //arduino demo modes
@@ -139,6 +136,11 @@ public class LedTable extends Thread {
 			else if (mode == 8) {
 				handleAnimations();
 			}
+			else if (mode == 9 && (midiMode == null || !midiMode.isRunning())) {
+				midiMode = new LedTable_Midi();
+				midiMode.setMode(1);
+				midiMode.startMidi();
+			}
 			else {
 				System.out.println("Error: Invalid Mode");
 			}
@@ -146,6 +148,15 @@ public class LedTable extends Thread {
 	}
 	
 	private void handleAnimations() {
+		if (animation != null && animation.isRunning()) {
+			runAnimation = false;
+			animation.stopAnimation();
+			try {
+				Thread.sleep(animation.getDelay() * 2);
+			} catch (InterruptedException e) {
+				System.out.println("Error waiting for animation to finish " + e);
+			}
+		}
 		runAnimation = true;
 		animation = new LedTable_Animation(lastSelection);
 		animation.start();
@@ -195,7 +206,7 @@ public class LedTable extends Thread {
 							tableAr[cell++] = (byte)b;
 						}
 						else {
-							System.out.println("Pixel discared at x,y: " + x + "," + y);
+							System.out.println("Pixel discarded at x,y: " + x + "," + y);
 						}
 					}
 				}
@@ -214,11 +225,21 @@ public class LedTable extends Thread {
 					if (x >= LedTable_Settings.ledX) { y++; x = 0;}
 				}
 			}*/
-								
-			tableSerial.serial.write(tableAr);
+			if (tableSerial.isConnected()) {
+				tableSerial.serial.write(tableAr);
+			}
 		}
 		catch (IOException ioe) {
 			System.out.println("Error opening file: " + ioe);
 		}
+	}
+	
+	public void quit() {
+		
+		//this is a safe selection for quitting - handleSelection will close the opened threads
+		newSelection(new LedTable_Selection(0, null, null, null, null, null));
+		
+		if (LedTable_Settings.debug) System.out.println("Exiting LedTable");
+		System.exit(0);
 	}
 }

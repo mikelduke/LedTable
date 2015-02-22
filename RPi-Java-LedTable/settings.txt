@@ -1,0 +1,28 @@
+#LedTable Settings
+
+#Debug Mode
+debug: true
+
+#Test GUI Settings
+enableGUI: false
+guiW: 504
+guiH: 336
+flipY: true
+
+#Webservice Settings
+wsName: /ledtable
+wsPort: 85
+
+#Pi4j Serial Settings
+enableTableOutput: true
+serialPort: /dev/ttyACM0
+serialBaud: 57600
+refreshTime: 1000
+
+#LedTable Settings
+ledY: 8
+ledX: 12
+snakedLeds: true
+
+#Midi Settings
+midiUpdateDelay: 100

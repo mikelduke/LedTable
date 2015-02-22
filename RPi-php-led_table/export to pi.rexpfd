@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<rexpfd>
-    <destination path="mikel-desktop.RPi-Local:/var/www"/>
-    <options createDirectoryStructure="false" createSelectedOnly="true" descriptionFilePath="/led_table/export to pi.rexpfd" overWriteExistingFiles="true" reviewSynchronize="false" saveSettings="true"/>
-    <selectedElements>
-        <project name="led_table"/>
-    </selectedElements>
-</rexpfd>
