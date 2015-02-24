@@ -16,9 +16,9 @@ Class-Path: ./lib/mdp3Util.jar     ./lib/pi4j/junit.jar     ./lib/pi4j
 
 Name: common
 Specification-Title: LedTable
-Specification-Version: 0.1
+Specification-Version: 0.2
 Specification-Vendor: mdp3.net
 Implementation-Title: Java LedTable Controller
-Implementation-Version: 0.1 February 21 2015
+Implementation-Version: 0.2 February 22 2015
 Implementation-Vendor: mdp3.net
 

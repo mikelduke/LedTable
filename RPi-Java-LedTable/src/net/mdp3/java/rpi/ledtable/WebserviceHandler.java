@@ -3,6 +3,8 @@
  */
 package net.mdp3.java.rpi.ledtable;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.BindException;
 import java.util.HashMap;
@@ -10,6 +12,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.mdp3.java.rpi.ledtable.LedTable_Selection.Mode;
+import net.mdp3.java.util.file.SimpleFileIO;
 import net.mdp3.java.util.webservice.Webservice;
 import net.mdp3.java.util.webservice.WebserviceListener;
 
@@ -52,29 +56,50 @@ public class WebserviceHandler implements WebserviceListener {
 					returnValue += "Key: " + pairs.getKey() + " = " + pairs.getValue() + '\n';
 					//it.remove();
 				}
+			} else {
+				try {
+					File f = new File("LedTable.html");
+					returnValue = SimpleFileIO.loadFileToString(f);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
 			}
-			else returnValue = "Invalid Params!";
+		} else {
+			if (params.size() > 0) {
+				returnValue = "OK";
+			} else {
+				try {
+					File f = new File("LedTable.html");
+					returnValue = SimpleFileIO.loadFileToString(f);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		System.out.println("RetVal: \n" + returnValue);
 		
-		parseParams(params);
+		if (params.size() > 0) {
+			returnValue += parseParams(params);
+		}
 		
 		return returnValue;
 	}
 	
-	private void parseParams(HashMap<String,String> params) {
-		int mode = 2;
-		String modeStr = params.get("mode");
-		if (modeStr.length() > 0) mode = new Integer(modeStr).intValue();
+	private String parseParams(HashMap<String,String> params) {
+		String ret = "";
+		Mode mode = Mode.PULSE1; //default mode for bad params
 		
-		String parm1 = params.get("param1");
-		String parm2 = params.get("param2");
-		String parm3 = params.get("param3");
-		String parm4 = params.get("param4");
-		String parm5 = params.get("param5");
-		byte parm5bAr[] = null;
-		if (parm5 != null && parm5.length() > 0) parm5bAr = parm5.getBytes();
+		//read mode parameter
+		if (params.get("mode") != null) {
+			try {
+				mode = Mode.valueOf(params.get("mode"));
+				table.newSelection(new LedTable_Selection(mode, params));
+			} catch (Exception e) {
+				System.out.println("Invalid Mode");
+				ret = "Invalid Mode";
+			}
+		}
 		
-		table.newSelection(new LedTable_Selection(mode, parm1, parm2, parm3, parm4, parm5bAr));
+		return ret;
 	}
 }

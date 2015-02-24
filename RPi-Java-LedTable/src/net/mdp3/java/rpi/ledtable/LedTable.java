@@ -7,6 +7,7 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
+import net.mdp3.java.rpi.ledtable.LedTable_Selection.Mode;
 import net.mdp3.java.rpi.ledtable.gui.MainWindow;
 
 
@@ -19,8 +20,6 @@ import net.mdp3.java.rpi.ledtable.gui.MainWindow;
  */
 public class LedTable {
 	public static LedTable_Serial tableSerial;
-	private LedTable_Selection prevSelection = null;
-	private LedTable_Selection lastSelection;
 	private LedTable_Animation animation = null;
 	//private LedTable_Modes[] modes;
 	private LedTable_Midi midiMode = null;
@@ -59,39 +58,29 @@ public class LedTable {
 			e1.printStackTrace();
 		}
 
-		newSelection(new LedTable_Selection(2, null, null, null, null, null));
-	}
-		
-	public void newSelection(LedTable_Selection s) {
-		if (LedTable_Settings.debug) System.out.println("newSelection Called with Mode: " + s.getMode());
-		
-		if (!s.equals(prevSelection)) {
-			//new selection, parse it and send output to serial
-			lastSelection = s;
-			handleSelection();
-			prevSelection = s;
-		}
+		newSelection(new LedTable_Selection(Mode.PULSE1));
 	}
 	
 	/**
-	 * handleSelection
+	 * newSelection
 	 * 
-	 * Called in thread when a new selection is detected in the database
-	 * This method is the switch to what do it, it will either make new serial output,
-	 * or launch a new thread for serial output
+	 * Called by webservice when a new selection occurs
+	 * 
+	 * Either outputs the selection with parameters over serial, or calls 
+	 * other classes for more advanced stuff
 	 */
-	private void handleSelection() {
-		if (LedTable_Settings.debug) System.out.println("Handle Selection Mode: " + lastSelection.getMode());
+	public void newSelection(LedTable_Selection s) {
+		if (LedTable_Settings.debug) System.out.println("Handle Selection Mode: " + s.getMode());
 		
 		if (LedTable_Settings.enableTableOutput && !tableSerial.isConnected()) {
 			tableSerial.connect();
 		}
 		
 		if (tableSerial.isConnected()) {
-			int mode = lastSelection.getMode();
-			char c = new String(mode + "").charAt(0);
+			int modeVal = s.getMode().getValue();
+			char c = new String(modeVal + "").charAt(0);
 			
-			if (mode != 8 && animation != null && animation.isRunning()) {
+			if (s.getMode() != Mode.ANIMATION && animation != null && animation.isRunning()) {
 				runAnimation = false;
 				animation.stopAnimation();
 				try {
@@ -101,25 +90,28 @@ public class LedTable {
 				}
 			}
 			
-			if (mode != 9 && midiMode != null && midiMode.isRunning()) {
+			if (s.getMode() != Mode.MIDI && midiMode != null && midiMode.isRunning()) {
 				midiMode.stopMidi();
 				midiMode = null;
 			}
 			
-			if (mode == 0 || mode == 1 || mode == 2 || mode == 3 || mode == 6) { //arduino demo modes
+			if (s.getMode() == Mode.OFF || s.getMode() == Mode.DEMO || s.getMode() == Mode.PULSE1 
+					|| s.getMode() == Mode.PULSE2 || s.getMode() == Mode.PULSE_RANDOM) { //arduino demo modes
 				tableSerial.writeChar(c);
 			}
-			else if (mode == 4) { //frame byte ar write - launch rpi method to output to table
-				
+			else if (s.getMode() == Mode.RAW) { //TODO implement frame byte ar write - launch rpi method to output to table
+				String byteArStr = s.getParams().get("byteAr");
+				byte[] byteAr;
+				if (byteArStr != null && byteArStr.length() > 0) byteAr = byteArStr.getBytes();
 			}
-			else if (mode == 5) { //set table color
+			else if (s.getMode() == Mode.SET_COLOR) { //set table color
 				//not parsing correctly
 				byte bAr[] = new byte[4];
 				
 				bAr[0] = (byte)c;
-				bAr[1] = new Integer(Integer.parseInt(lastSelection.getParm1(), 16)).byteValue();
-				bAr[2] = new Integer(Integer.parseInt(lastSelection.getParm2(), 16)).byteValue();
-				bAr[3] = new Integer(Integer.parseInt(lastSelection.getParm3(), 16)).byteValue();
+				bAr[1] = new Integer(Integer.parseInt(s.getParams().get("r"), 16)).byteValue();
+				bAr[2] = new Integer(Integer.parseInt(s.getParams().get("g"), 16)).byteValue();
+				bAr[3] = new Integer(Integer.parseInt(s.getParams().get("b"), 16)).byteValue();
 				
 				if (LedTable_Settings.debug) {
 					System.out.print("Color selection byte ar: ");
@@ -130,13 +122,13 @@ public class LedTable {
 				
 				tableSerial.writeByteAr(bAr);
 			}
-			else if (mode == 7) { //image mode
-				showImage(lastSelection.getParm1());
+			else if (s.getMode() == Mode.IMAGE) { //image mode
+				showImage(s.getParams().get("img"));
 			}
-			else if (mode == 8) {
-				handleAnimations();
+			else if (s.getMode() == Mode.ANIMATION) {
+				handleAnimations(s);
 			}
-			else if (mode == 9 && (midiMode == null || !midiMode.isRunning())) {
+			else if (s.getMode() == Mode.MIDI && (midiMode == null || !midiMode.isRunning())) {
 				midiMode = new LedTable_Midi();
 				midiMode.setMode(1);
 				midiMode.startMidi();
@@ -147,7 +139,7 @@ public class LedTable {
 		}
 	}
 	
-	private void handleAnimations() {
+	private void handleAnimations(LedTable_Selection s) {
 		if (animation != null && animation.isRunning()) {
 			runAnimation = false;
 			animation.stopAnimation();
@@ -158,7 +150,7 @@ public class LedTable {
 			}
 		}
 		runAnimation = true;
-		animation = new LedTable_Animation(lastSelection);
+		animation = new LedTable_Animation(s);
 		animation.start();
 	}
 	
@@ -237,7 +229,7 @@ public class LedTable {
 	public void quit() {
 		
 		//this is a safe selection for quitting - handleSelection will close the opened threads
-		newSelection(new LedTable_Selection(0, null, null, null, null, null));
+		newSelection(new LedTable_Selection(Mode.OFF));
 		
 		if (LedTable_Settings.debug) System.out.println("Exiting LedTable");
 		System.exit(0);

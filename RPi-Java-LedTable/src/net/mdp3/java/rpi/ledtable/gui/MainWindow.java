@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import net.mdp3.java.rpi.ledtable.LedTable;
 import net.mdp3.java.rpi.ledtable.LedTable_Selection;
 import net.mdp3.java.rpi.ledtable.LedTable_Settings;
+import net.mdp3.java.rpi.ledtable.LedTable_Selection.Mode;
 
 /**
  * @author Mikel
@@ -78,7 +79,7 @@ public class MainWindow extends JFrame implements WindowListener, ActionListener
 		if (e.getSource() == quitBtn) {
 			table.quit();
 		} else if (e.getSource() == midiModeBtn) {
-			table.newSelection(new LedTable_Selection(9, null, null, null, null, null));
+			table.newSelection(new LedTable_Selection(Mode.MIDI));
 		}
 	}
 

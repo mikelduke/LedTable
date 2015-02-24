@@ -8,7 +8,7 @@
 	<property name="build" location="build" />
 	<property name="lib" location="lib" />
 	<property name="dist" location="dist" />
-	<property name="version" value="0.2" />
+	<property name="version" value="0.2.1" />
 	
 	
 	<target name="init" depends="clean">
@@ -73,6 +73,7 @@
 			<fileset dir="${lib}" />
 		</copy>
 		<copy todir="${dist}" file="${basedir}/settings.txt" />
+		<copy todir="${dist}" file="${basedir}/LedTable.html" />
 		<jar jarfile="${dist}/LedTable.jar" basedir="${build}" manifest="MANIFEST.MF" />
 	</target>
 	

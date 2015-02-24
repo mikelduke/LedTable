@@ -18,9 +18,9 @@ public class LedTable_Animation extends Thread {
 	
 	public LedTable_Animation(LedTable_Selection s) {
 		selection = s;
-		imageDelay = new Long(selection.getParm2());
+		imageDelay = new Long(selection.getParams().get("delay"));
 		
-		File folder = new File(selection.getParm1());
+		File folder = new File(selection.getParams().get("folder"));
 		fileList = folder.listFiles();
 		
 		loadImages();
