@@ -8,6 +8,7 @@
 	<property name="build" location="build" />
 	<property name="lib" location="lib" />
 	<property name="dist" location="dist" />
+	<property name="www" location="www" />
 	<property name="version" value="0.2.1" />
 	
 	
@@ -39,8 +40,7 @@
 		<manifest file="MANIFEST.MF">
 			<attribute name="Built-By" value="${user.name}"/>
 			<attribute name="Main-Class" value="net.mdp3.java.rpi.ledtable.LedTable"/>
-			<attribute name="Class-Path" value="./lib/mdp3Util.jar
-				./lib/pi4j/junit.jar
+			<attribute name="Class-Path" value="./lib/pi4j/junit.jar
 				./lib/pi4j/pi4j-core-javadoc.jar
 				./lib/pi4j/pi4j-core-sources.jar
 				./lib/pi4j/pi4j-core.jar
@@ -72,8 +72,15 @@
 		<copy todir="${dist}/lib">
 			<fileset dir="${lib}" />
 		</copy>
+		<copy todir="${dist}/www">
+			<fileset dir="${www}" />
+		</copy>
 		<copy todir="${dist}" file="${basedir}/settings.txt" />
-		<copy todir="${dist}" file="${basedir}/LedTable.html" />
+		<copy todir="${dist}" file="${basedir}/logging.properties" />
+		<mkdir dir="${dist}/logs" />
+		<mkdir dir="${dist}/saves" />
+		<mkdir dir="${dist}/saves/playlists" />
+		<mkdir dir="${dist}/saves/selections" />
 		<jar jarfile="${dist}/LedTable.jar" basedir="${build}" manifest="MANIFEST.MF" />
 	</target>
 	

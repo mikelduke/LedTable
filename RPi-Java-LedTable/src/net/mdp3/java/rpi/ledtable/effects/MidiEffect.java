@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.mdp3.java.rpi.ledtable;
+package net.mdp3.java.rpi.ledtable.effects;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -14,11 +14,16 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
 
+import net.mdp3.java.rpi.ledtable.LedTable_Selection;
+import net.mdp3.java.rpi.ledtable.LedTable_Settings;
+import net.mdp3.java.rpi.ledtable.LedTable_Util;
+import net.mdp3.java.rpi.ledtable.table.Table;
+
 /**
  * @author Mikel
  *
  */
-public class LedTable_Midi extends Thread implements Receiver {
+public class MidiEffect extends Effect implements Receiver {
 
 	private LinkedList<MidiDevice> openDevices = new LinkedList<MidiDevice>();
 	private LinkedList<Transmitter> transmitters = new LinkedList<Transmitter>();
@@ -26,34 +31,34 @@ public class LedTable_Midi extends Thread implements Receiver {
 	private int mode = 1;
 	private final int NOTE = 144; //0x90
 	
-	private boolean run = false;
-	private long tableUpdateDelay = LedTable_Settings.midiUpdateDelay;
-	
 	Random rand = new Random();
+	private boolean devicesLoaded = false;
 	
-	public LedTable_Midi() {
+	public MidiEffect(Table t, LedTable_Selection s) {
+		super(t, s);
 	}
 	
-	public boolean isRunning() {
-		return run;
+	@Override
+	public EffectInfo setEffectInfo() {
+		EffectInfoParameter[] paramInfo = {
+				//TODO add parameter info
+		};
+		EffectInfo ei = new EffectInfo("MidiEffect", 
+				"Listens to midi info and does stuff", paramInfo);
+		
+		return ei;
 	}
 	
-	public void run() {
-		while(run) {
-			updateTable();
-			
-			if (run) {
-				try {
-					Thread.sleep(tableUpdateDelay);
-				} catch (InterruptedException e) {
-					/*if (!e.toString().equalsIgnoreCase("sleep interrupted")) {
-						System.out.println("Error sleeping Midi Thread: " + e);
-						e.printStackTrace();
-					}*/
-				}
-			} else { //extra check to close inputs cleanly
-				close();
-			}
+	public void effectsLoop() {
+		if (!devicesLoaded) {
+			loadInputDevices();
+		} 
+		updateTable();
+		
+		if (run) {
+			delay();
+		} else { //extra check to close inputs cleanly
+			close();
 		}
 	}
 	
@@ -61,17 +66,8 @@ public class LedTable_Midi extends Thread implements Receiver {
 		this.mode = m;
 	}
 	
-	public void startMidi() {
-		if (!run) {
-			if (loadInputDevices() || LedTable_Settings.debug) {
-				run = true;
-				this.start();
-			}
-		}
-	}
-	
-	public void stopMidi() {
-		if (LedTable_Settings.debug) System.out.println("Stopping Midi Thread!");
+	public void stopEffect() {
+		LOG.finer("Stopping Midi Thread!");
 		if (run) {
 			run = false;
 			close();
@@ -110,6 +106,8 @@ public class LedTable_Midi extends Thread implements Receiver {
 				System.out.println("Error loading device " + i + " " + e);
 		    }
 		}
+		
+		this.devicesLoaded = deviceLoaded;
 		return deviceLoaded;
 	}
 	
@@ -159,9 +157,9 @@ public class LedTable_Midi extends Thread implements Receiver {
 	private void handleMidiMode1(int cmd, int data1, int data2) {
 		if (cmd == NOTE) {
 			int scaleNote = data1 % 12;
-			LedTable_Util.tableAr[0][scaleNote * 3] 	= rand.nextInt(255); //data2 * 2; //R
-			LedTable_Util.tableAr[0][scaleNote * 3 + 1] = rand.nextInt(255); //data2 * 2; //G
-			LedTable_Util.tableAr[0][scaleNote * 3 + 2] = rand.nextInt(255); //data2 * 2; //B
+			LedTable_Util.getTableAr()[0][scaleNote * 3] 	= (byte) rand.nextInt(255); //data2 * 2; //R
+			LedTable_Util.getTableAr()[0][scaleNote * 3 + 1] = (byte) rand.nextInt(255); //data2 * 2; //G
+			LedTable_Util.getTableAr()[0][scaleNote * 3 + 2] = (byte) rand.nextInt(255); //data2 * 2; //B
 		}
 	}
 	
@@ -174,10 +172,8 @@ public class LedTable_Midi extends Thread implements Receiver {
 	 */
 	private void updateTable() {
 		if (mode == 1) {
-			LedTable_Util.moveTableDown();
-			LedTable_Util.fade(30);
+			//TODO implement this
 		}
-		LedTable_Util.sendTableAr();
 	}
 	
 	/**

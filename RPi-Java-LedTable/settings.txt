@@ -4,20 +4,32 @@
 debug: true
 
 #Test GUI Settings
-enableGUI: false
-guiW: 504
-guiH: 336
+enableGUI: true
+guiW: 520
+guiH: 366
 flipY: true
 
 #Webservice Settings
 wsName: /ledtable
 wsPort: 85
 
-#Pi4j Serial Settings
-enableTableOutput: true
+#Remote Webservice Connection Settings
+remoteWS: false
+remoteWSURL: http://ip:85/ledtable
+
+#Output Settings
+enableTableOutput: false
+tableMode: SPI
+
+#Serial Settings
 serialPort: /dev/ttyACM0
 serialBaud: 57600
-refreshTime: 1000
+
+#SPI Settings
+spiSpeed: 1953000
+
+#File Output Settings
+outputFile: /dev/spidev0.0
 
 #LedTable Settings
 ledY: 8
@@ -26,3 +38,14 @@ snakedLeds: true
 
 #Midi Settings
 midiUpdateDelay: 100
+
+#File Save Settings
+defaultSaveFolder: C:/mdp3/projects/LedTable/java/saves
+defaultFilePrefix: LedTable
+
+#Auto load and play settings
+autoplaySelection: false
+defaultSelectionFile: C:/mdp3/projects/LedTable/java/saves/selections/LedTable-20150930183017.xml
+
+autoplayPlaylist: true
+defaultPlaylistFile: C:/mdp3/projects/LedTable/java/saves/playlists/LedTable-20151022150223.xml

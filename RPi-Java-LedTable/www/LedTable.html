@@ -1,0 +1,23 @@
+<html>
+	<head>
+		<title>Led Table Controller</title>
+		<script type="text/javascript" src="ledtable?cmd=FILE&file=LedTable.js"></script>
+	</head>
+	<body onload="load()">
+		<h1>Led Table Controller</h1>
+		<h2>WS Version 1</h2>
+		<hr />
+		<br />
+		<div id="ledTable">
+			<div id = "playlist_play"></div>
+			<select id="modes" onchange="changeMode()"></select>
+			<div id="status"></div>
+			<div id="effectInfo">
+				<p id="effectDetails"></p>
+				<div id="effectSelects"></div>
+				<div id="effectSwitches"></div>
+				<div id="effectSliders"></div>
+			</div>
+		</div>
+	</body>
+</html>

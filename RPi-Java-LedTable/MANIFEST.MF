@@ -1,24 +1,23 @@
 Manifest-Version: 1.0
-Ant-Version: Apache Ant 1.8.4
-Created-By: 1.7.0_55-b13 (Oracle Corporation)
-Built-By: Mikel
+Ant-Version: Apache Ant 1.10.1
+Created-By: 9.0.4+11 (Oracle Corporation)
+Built-By: mikel
 Main-Class: net.mdp3.java.rpi.ledtable.LedTable
-Class-Path: ./lib/mdp3Util.jar     ./lib/pi4j/junit.jar     ./lib/pi4j
- /pi4j-core-javadoc.jar     ./lib/pi4j/pi4j-core-sources.jar     ./lib
- /pi4j/pi4j-core.jar     ./lib/pi4j/pi4j-device-javadoc.jar     ./lib/
- pi4j/pi4j-device-sources.jar     ./lib/pi4j/pi4j-device.jar     ./lib
- /pi4j/pi4j-example-javadoc.jar     ./lib/pi4j/pi4j-example-sources.ja
- r     ./lib/pi4j/pi4j-example.jar     ./lib/pi4j/pi4j-gpio-extension-
- javadoc.jar     ./lib/pi4j/pi4j-gpio-extension-sources.jar     ./lib/
- pi4j/pi4j-gpio-extension.jar     ./lib/pi4j/pi4j-service-javadoc.jar 
-     ./lib/pi4j/pi4j-service-sources.jar     ./lib/pi4j/pi4j-service.j
- ar
+Class-Path: ./lib/pi4j/junit.jar     ./lib/pi4j/pi4j-core-javadoc.jar 
+     ./lib/pi4j/pi4j-core-sources.jar     ./lib/pi4j/pi4j-core.jar    
+  ./lib/pi4j/pi4j-device-javadoc.jar     ./lib/pi4j/pi4j-device-source
+ s.jar     ./lib/pi4j/pi4j-device.jar     ./lib/pi4j/pi4j-example-java
+ doc.jar     ./lib/pi4j/pi4j-example-sources.jar     ./lib/pi4j/pi4j-e
+ xample.jar     ./lib/pi4j/pi4j-gpio-extension-javadoc.jar     ./lib/p
+ i4j/pi4j-gpio-extension-sources.jar     ./lib/pi4j/pi4j-gpio-extensio
+ n.jar     ./lib/pi4j/pi4j-service-javadoc.jar     ./lib/pi4j/pi4j-ser
+ vice-sources.jar     ./lib/pi4j/pi4j-service.jar
 
 Name: common
 Specification-Title: LedTable
-Specification-Version: 0.2
+Specification-Version: 0.2.1
 Specification-Vendor: mdp3.net
 Implementation-Title: Java LedTable Controller
-Implementation-Version: 0.2 February 22 2015
+Implementation-Version: 0.2.1 February 20 2018
 Implementation-Vendor: mdp3.net
 

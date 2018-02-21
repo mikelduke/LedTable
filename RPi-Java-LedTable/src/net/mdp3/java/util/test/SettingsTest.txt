@@ -1,0 +1,15 @@
+#Settings Test file
+intParm: 500
+stringParm: sgdfgdfg
+boolParm: true
+longParm: 999999999
+doubleParm: 3.14
+
+staticIntParm: 650
+staticStringParm: 123452345345
+staticBoolParm: true
+staticLongParm: 888888888
+staticDoubleParm: 2.255
+
+//new Comment!!
+newVal = 500
